@@ -110,7 +110,7 @@ resource "google_bigquery_table" "stn_ecommerce_geolocation" {
 
 resource "google_bigquery_table" "stn_ecommerce_order_items" {
 	dataset_id = google_bigquery_dataset.stn_ecommerce.dataset_id
-	table_id = "olist_geolocation_order_items_dataset"
+	table_id = "olist_order_items_dataset"
 	description = "This dataset includes data about the items purchased within each order"
 
 	schema = <<EOF
@@ -168,9 +168,9 @@ resource "google_bigquery_table" "stn_ecommerce_order_items" {
 	}
 }
 
-resource "google_bigquery_table" "stn_ecommerce_payments" {
+resource "google_bigquery_table" "stn_ecommerce_order_payments" {
 	dataset_id = google_bigquery_dataset.stn_ecommerce.dataset_id
-	table_id = "olist_geolocation_payments_dataset"
+	table_id = "olist_order_payments_dataset"
 	description = "This dataset includes data about the orders payment options"
 
 	schema = <<EOF
@@ -204,6 +204,279 @@ resource "google_bigquery_table" "stn_ecommerce_payments" {
 				"type": "STRING",
 				"mode": "NULLABLE",
 				"description": "Transaction value"
+			}
+		]
+		EOF
+
+	labels = {
+		project = "ecommerce-store"
+		env = "sandbox"
+		customer = "alx-ds"
+		lake_zone = "stn"
+	}
+}
+
+resource "google_bigquery_table" "stn_ecommerce_order_reviews" {
+	dataset_id = google_bigquery_dataset.stn_ecommerce.dataset_id
+	table_id = "olist_order_reviews_dataset"
+	description = "This dataset includes data about the reviews made by the customers"
+
+	schema = <<EOF
+		[
+			{
+				"name": "review_id",
+				"type": "STRING",
+				"mode": "NULLABLE",
+				"description": "Unique review identifier"
+			},
+			{
+				"name": "order_id",
+				"type": "STRING",
+				"mode": "NULLABLE",
+				"description": "Unique order identifier"
+			},
+			{
+				"name": "review_score",
+				"type": "STRING",
+				"mode": "NULLABLE",
+				"description": "Note ranging from 1 to 5 given by the customer on a satisfaction survey"
+			},
+			{
+				"name": "review_comment_title",
+				"type": "STRING",
+				"mode": "NULLABLE",
+				"description": "Comment title from the review left by the customer, in Portuguese"
+			},
+			{
+				"name": "review_comment_message",
+				"type": "STRING",
+				"mode": "NULLABLE",
+				"description": "Comment message from the review left by the customer, in Portuguese"
+			}
+			,
+			{
+				"name": "review_creation_date",
+				"type": "STRING",
+				"mode": "NULLABLE",
+				"description": "Shows the date in which the satisfaction survey was sent to the customer"
+			},
+			{
+				"name": "review_answer_timestamp",
+				"type": "STRING",
+				"mode": "NULLABLE",
+				"description": "Shows satisfaction survey answer timestamp"
+			}
+		]
+		EOF
+
+	labels = {
+		project = "ecommerce-store"
+		env = "sandbox"
+		customer = "alx-ds"
+		lake_zone = "stn"
+	}
+}
+
+resource "google_bigquery_table" "stn_ecommerce_orders" {
+	dataset_id = google_bigquery_dataset.stn_ecommerce.dataset_id
+	table_id = "olist_orders_dataset"
+	description = "This is the core dataset. From each order you might find all other information"
+
+	schema = <<EOF
+		[
+			{
+				"name": "order_id",
+				"type": "STRING",
+				"mode": "NULLABLE",
+				"description": "Unique identifier of the order"
+			},
+			{
+				"name": "customer_id",
+				"type": "STRING",
+				"mode": "NULLABLE",
+				"description": "Key to the customer dataset. Each order has a unique customer_id"
+			},
+			{
+				"name": "order_status",
+				"type": "STRING",
+				"mode": "NULLABLE",
+				"description": "Reference to the order status (delivered, shipped, etc)"
+			},
+			{
+				"name": "order_purchase_timestamp",
+				"type": "STRING",
+				"mode": "NULLABLE",
+				"description": "Shows the purchase timestamp"
+			},
+			{
+				"name": "order_approved_at",
+				"type": "STRING",
+				"mode": "NULLABLE",
+				"description": "Shows the payment approval timestamp"
+			}
+			,
+			{
+				"name": "order_delivered_carrier_date",
+				"type": "STRING",
+				"mode": "NULLABLE",
+				"description": "Shows the order posting timestamp. When it was handled to the logistic partner"
+			},
+			{
+				"name": "order_delivered_customer_date",
+				"type": "STRING",
+				"mode": "NULLABLE",
+				"description": "Shows the actual order delivery date to the customer"
+			},
+			{
+				"name": "order_estimated_delivery_date",
+				"type": "STRING",
+				"mode": "NULLABLE",
+				"description": "Shows the estimated delivery date that was informed to customer at the purchase moment"
+			}
+		]
+		EOF
+
+	labels = {
+		project = "ecommerce-store"
+		env = "sandbox"
+		customer = "alx-ds"
+		lake_zone = "stn"
+	}
+}
+
+resource "google_bigquery_table" "stn_ecommerce_products" {
+	dataset_id = google_bigquery_dataset.stn_ecommerce.dataset_id
+	table_id = "olist_orders_dataset"
+	description = "This dataset includes data about the products sold by Olist"
+
+	schema = <<EOF
+		[
+			{
+				"name": "product_id",
+				"type": "STRING",
+				"mode": "NULLABLE",
+				"description": "Unique product identifier"
+			},
+			{
+				"name": "product_category_name",
+				"type": "STRING",
+				"mode": "NULLABLE",
+				"description": "Root category of product, in Portuguese"
+			},
+			{
+				"name": "product_name_lenght",
+				"type": "STRING",
+				"mode": "NULLABLE",
+				"description": "Number of characters extracted from the product name"
+			},
+			{
+				"name": "product_description_lenght",
+				"type": "STRING",
+				"mode": "NULLABLE",
+				"description": "Number of characters extracted from the product description"
+			},
+			{
+				"name": "product_photos_qty",
+				"type": "STRING",
+				"mode": "NULLABLE",
+				"description": "Number of product published photos"
+			}
+			,
+			{
+				"name": "product_weight_g",
+				"type": "STRING",
+				"mode": "NULLABLE",
+				"description": "Product weight measured in grams"
+			},
+			{
+				"name": "product_length_cm",
+				"type": "STRING",
+				"mode": "NULLABLE",
+				"description": "Product length measured in centimeters"
+			},
+			{
+				"name": "product_height_cm",
+				"type": "STRING",
+				"mode": "NULLABLE",
+				"description": "Product height measured in centimeters"
+			},
+			{
+				"name": "product_width_cm",
+				"type": "STRING",
+				"mode": "NULLABLE",
+				"description": "product width measured in centimeters"
+			}
+		]
+		EOF
+
+	labels = {
+		project = "ecommerce-store"
+		env = "sandbox"
+		customer = "alx-ds"
+		lake_zone = "stn"
+	}
+}
+
+resource "google_bigquery_table" "stn_ecommerce_sellers" {
+	dataset_id = google_bigquery_dataset.stn_ecommerce.dataset_id
+	table_id = "olist_sellers_dataset"
+	description = "This dataset includes data about the sellers that fulfilled orders made at Olist. Use it to find the seller location and to identify which seller fulfilled each product"
+
+	schema = <<EOF
+		[
+			{
+				"name": "seller_id",
+				"type": "STRING",
+				"mode": "NULLABLE",
+				"description": "Seller unique identifier"
+			},
+			{
+				"name": "seller_zip_code_prefix",
+				"type": "STRING",
+				"mode": "NULLABLE",
+				"description": "First 5 digits of seller zip code"
+			},
+			{
+				"name": "seller_city",
+				"type": "STRING",
+				"mode": "NULLABLE",
+				"description": "Seller city name"
+			},
+			{
+				"name": "seller_state",
+				"type": "STRING",
+				"mode": "NULLABLE",
+				"description": "Seller state"
+			}
+		]
+		EOF
+
+	labels = {
+		project = "ecommerce-store"
+		env = "sandbox"
+		customer = "alx-ds"
+		lake_zone = "stn"
+	}
+}
+
+resource "google_bigquery_table" "stn_ecommerce_sellers" {
+	dataset_id = google_bigquery_dataset.stn_ecommerce.dataset_id
+	table_id = "product_category_name_translation"
+	description = "Translates the product_category_name to English"
+
+	schema = <<EOF
+		[
+			{
+				"name": "product_category_name",
+				"type": "STRING",
+				"mode": "NULLABLE",
+				"description": "Category name in Portuguese"
+			},
+			{
+				"name": "product_category_name_english",
+				"type": "STRING",
+				"mode": "NULLABLE",
+				"description": "Category name in English"
 			}
 		]
 		EOF
