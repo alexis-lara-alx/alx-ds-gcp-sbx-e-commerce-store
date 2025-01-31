@@ -143,7 +143,7 @@ resource "google_bigquery_table" "stn_ecommerce_order_items" {
 			{
 				"name": "order_id",
 				"type": "STRING",
-				"mode": "REQUIRED"
+				"mode": "REQUIRED",
 				"description": "Order unique identifier"
 			},
 			{
