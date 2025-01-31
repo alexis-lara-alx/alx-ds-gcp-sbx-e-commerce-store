@@ -94,13 +94,13 @@ resource "google_bigquery_table" "stn_ecommerce_geolocation" {
 			},
 			{
 				"name": "geolocation_lat",
-				"type": "NUMERIC(17,15)",
+				"type": "NUMERIC",
 				"mode": "REQUIRED",
 				"description": "Latitude"
 			},
 			{
 				"name": "geolocation_lng",
-				"type": "NUMERIC(17,15)",
+				"type": "NUMERIC",
 				"mode": "REQUIRED",
 				"description": "Longitude"
 			},
