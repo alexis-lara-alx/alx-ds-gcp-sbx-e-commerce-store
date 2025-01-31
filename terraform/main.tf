@@ -65,7 +65,7 @@ resource "google_bigquery_table" "stn_ecommerce_customers" {
 			}
 
 			column_references {
-				refencing_column = "customer_zip_code_prefix"
+				referencing_column = "customer_zip_code_prefix"
 				referenced_column = "geolocation_zip_code_prefix"
 			}
 		}
@@ -198,7 +198,7 @@ resource "google_bigquery_table" "stn_ecommerce_order_items" {
 			}
 
 			column_references {
-				refencing_column = "order_id"
+				referencing_column = "order_id"
 				referenced_column = "order_id"
 			}
 		}
@@ -211,7 +211,7 @@ resource "google_bigquery_table" "stn_ecommerce_order_items" {
 			}
 
 			column_references {
-				refencing_column = "product_id"
+				referencing_column = "product_id"
 				referenced_column = "product_id"
 			}
 		}
@@ -224,7 +224,7 @@ resource "google_bigquery_table" "stn_ecommerce_order_items" {
 			}
 
 			column_references {
-				refencing_column = "seller_id"
+				referencing_column = "seller_id"
 				referenced_column = "seller_id"
 			}
 		}
@@ -291,7 +291,7 @@ resource "google_bigquery_table" "stn_ecommerce_order_payments" {
 			}
 
 			column_references {
-				refencing_column = "order_id"
+				referencing_column = "order_id"
 				referenced_column = "order_id"
 			}
 		}
@@ -371,7 +371,7 @@ resource "google_bigquery_table" "stn_ecommerce_order_reviews" {
 			}
 
 			column_references {
-				refencing_column = "order_id"
+				referencing_column = "order_id"
 				referenced_column = "order_id"
 			}
 		}
@@ -457,7 +457,7 @@ resource "google_bigquery_table" "stn_ecommerce_orders" {
 			}
 
 			column_references {
-				refencing_column = "customer_id"
+				referencing_column = "customer_id"
 				referenced_column = "customer_id"
 			}
 		}
@@ -597,7 +597,7 @@ resource "google_bigquery_table" "stn_ecommerce_sellers" {
 			}
 
 			column_references {
-				refencing_column = "seller_zip_code_prefix"
+				referencing_column = "seller_zip_code_prefix"
 				referenced_column = "geolocation_zip_code_prefix"
 			}
 		}
