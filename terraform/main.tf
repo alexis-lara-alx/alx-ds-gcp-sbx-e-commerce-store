@@ -123,13 +123,13 @@ resource "google_bigquery_table" "stn_ecommerce_geolocation" {
 		primary_key {
 			columns = ["geolocation_zip_code_prefix"]
 		}
-		
-		labels = {
-			project = "ecommerce-store"
-			env = "sandbox"
-			customer = "alx-ds"
-			lake_zone = "stn"
-		}
+	}
+
+	labels = {
+		project = "ecommerce-store"
+		env = "sandbox"
+		customer = "alx-ds"
+		lake_zone = "stn"
 	}
 }
 
