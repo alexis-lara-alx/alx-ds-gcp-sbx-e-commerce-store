@@ -16,6 +16,7 @@ resource "google_bigquery_table" "stn_ecommerce_customers" {
 	dataset_id = google_bigquery_dataset.stn_ecommerce.dataset_id
 	table_id = "olist_customers_dataset"
 	description = "This dataset has information about the customer and its location. Use it to identify unique customers in the orders dataset and to find the orders delivery location"
+	deletion_protection=false
 
 	schema = <<EOF
 		[
@@ -83,6 +84,7 @@ resource "google_bigquery_table" "stn_ecommerce_geolocation" {
 	dataset_id = google_bigquery_dataset.stn_ecommerce.dataset_id
 	table_id = "olist_geolocation_dataset"
 	description = "This dataset has information Brazilian zip codes and its lat/lng coordinates. Use it to plot maps and find distances between sellers and customers"
+	deletion_protection=false
 
 	schema = <<EOF
 		[
@@ -137,6 +139,7 @@ resource "google_bigquery_table" "stn_ecommerce_order_items" {
 	dataset_id = google_bigquery_dataset.stn_ecommerce.dataset_id
 	table_id = "olist_order_items_dataset"
 	description = "This dataset includes data about the items purchased within each order"
+	deletion_protection=false
 
 	schema = <<EOF
 		[
@@ -242,6 +245,7 @@ resource "google_bigquery_table" "stn_ecommerce_order_payments" {
 	dataset_id = google_bigquery_dataset.stn_ecommerce.dataset_id
 	table_id = "olist_order_payments_dataset"
 	description = "This dataset includes data about the orders payment options"
+	deletion_protection=false
 
 	schema = <<EOF
 		[
@@ -309,6 +313,7 @@ resource "google_bigquery_table" "stn_ecommerce_order_reviews" {
 	dataset_id = google_bigquery_dataset.stn_ecommerce.dataset_id
 	table_id = "olist_order_reviews_dataset"
 	description = "This dataset includes data about the reviews made by the customers"
+	deletion_protection=false
 
 	schema = <<EOF
 		[
@@ -389,6 +394,7 @@ resource "google_bigquery_table" "stn_ecommerce_orders" {
 	dataset_id = google_bigquery_dataset.stn_ecommerce.dataset_id
 	table_id = "olist_orders_dataset"
 	description = "This is the core dataset. From each order you might find all other information"
+	deletion_protection=false
 
 	schema = <<EOF
 		[
@@ -475,6 +481,7 @@ resource "google_bigquery_table" "stn_ecommerce_products" {
 	dataset_id = google_bigquery_dataset.stn_ecommerce.dataset_id
 	table_id = "olist_orders_dataset"
 	description = "This dataset includes data about the products sold by Olist"
+	deletion_protection=false
 
 	schema = <<EOF
 		[
@@ -554,6 +561,7 @@ resource "google_bigquery_table" "stn_ecommerce_sellers" {
 	dataset_id = google_bigquery_dataset.stn_ecommerce.dataset_id
 	table_id = "olist_sellers_dataset"
 	description = "This dataset includes data about the sellers that fulfilled orders made at Olist. Use it to find the seller location and to identify which seller fulfilled each product"
+	deletion_protection=false
 
 	schema = <<EOF
 		[
