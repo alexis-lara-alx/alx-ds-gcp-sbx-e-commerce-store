@@ -2,7 +2,7 @@ resource "google_storage_bucket" "raw_ecommerce" {
 	name = "raw_ecommerce"
 	location = "US"
 	force_destroy = true
-	public_access_prevention = true
+	public_access_prevention = "enforced"
 
 	# TODO - Add lifecycle policies
 
