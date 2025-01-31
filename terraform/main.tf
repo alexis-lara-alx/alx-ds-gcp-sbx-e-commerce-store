@@ -1,3 +1,19 @@
+resource "google_storage_bucket" "raw_ecommerce" {
+	name = "raw_ecommerce"
+	location = "US"
+	force_destroy = true
+	public_access_prevention = true
+
+	# TODO - Add lifecycle policies
+
+	labels = {
+		project = "ecommerce-store"
+		env = "sandbox"
+		customer = "alx-ds"
+		lake_zone = "raw"
+	}
+}
+
 resource "google_bigquery_dataset" "stn_ecommerce" {
 	dataset_id = "stn_ecommerce"
 	description = "Standardized E-Commerce data"
