@@ -52,20 +52,22 @@ resource "google_bigquery_table" "stn_ecommerce_customers" {
 		]
 		EOF
 
-	primary_key {
-		columns = ["customer_id"]
-	}
-
-	foreign_keys {
-		referenced_table {
-			project_id = google_bigquery_dataset.stn_ecommerce.project
-			dataset_id = google_bigquery_dataset.stn_ecommerce.dataset_id
-			table_id = google_bigquery_table.stn_ecommerce_geolocation.table_id
+	table_constraints {
+		primary_key {
+			columns = ["customer_id"]
 		}
 
-		column_references {
-			refencing_column = "customer_zip_code_prefix"
-			referenced_column = "geolocation_zip_code_prefix"
+		foreign_keys {
+			referenced_table {
+				project_id = google_bigquery_dataset.stn_ecommerce.project
+				dataset_id = google_bigquery_dataset.stn_ecommerce.dataset_id
+				table_id = google_bigquery_table.stn_ecommerce_geolocation.table_id
+			}
+
+			column_references {
+				refencing_column = "customer_zip_code_prefix"
+				referenced_column = "geolocation_zip_code_prefix"
+			}
 		}
 	}
 
@@ -117,15 +119,17 @@ resource "google_bigquery_table" "stn_ecommerce_geolocation" {
 		]
 		EOF
 
-	primary_key {
-		columns = ["geolocation_zip_code_prefix"]
-	}
-	
-	labels = {
-		project = "ecommerce-store"
-		env = "sandbox"
-		customer = "alx-ds"
-		lake_zone = "stn"
+	table_constraints {
+		primary_key {
+			columns = ["geolocation_zip_code_prefix"]
+		}
+		
+		labels = {
+			project = "ecommerce-store"
+			env = "sandbox"
+			customer = "alx-ds"
+			lake_zone = "stn"
+		}
 	}
 }
 
@@ -181,46 +185,48 @@ resource "google_bigquery_table" "stn_ecommerce_order_items" {
 		]
 		EOF
 
-	primary_key {
-		columns = ["order_id", "order_item_id"]
-	}
-
-	foreign_keys {
-		referenced_table {
-			project_id = google_bigquery_dataset.stn_ecommerce.project
-			dataset_id = google_bigquery_dataset.stn_ecommerce.dataset_id
-			table_id = google_bigquery_table.stn_ecommerce_orders.table_id
+	table_constraints {
+		primary_key {
+			columns = ["order_id", "order_item_id"]
 		}
 
-		column_references {
-			refencing_column = "order_id"
-			referenced_column = "order_id"
-		}
-	}
+		foreign_keys {
+			referenced_table {
+				project_id = google_bigquery_dataset.stn_ecommerce.project
+				dataset_id = google_bigquery_dataset.stn_ecommerce.dataset_id
+				table_id = google_bigquery_table.stn_ecommerce_orders.table_id
+			}
 
-	foreign_keys {
-		referenced_table {
-			project_id = google_bigquery_dataset.stn_ecommerce.project
-			dataset_id = google_bigquery_dataset.stn_ecommerce.dataset_id
-			table_id = google_bigquery_table.stn_ecommerce_products.table_id
-		}
-
-		column_references {
-			refencing_column = "product_id"
-			referenced_column = "product_id"
-		}
-	}
-	
-	foreign_keys {
-		referenced_table {
-			project_id = google_bigquery_dataset.stn_ecommerce.project
-			dataset_id = google_bigquery_dataset.stn_ecommerce.dataset_id
-			table_id = google_bigquery_table.stn_ecommerce_sellers.table_id
+			column_references {
+				refencing_column = "order_id"
+				referenced_column = "order_id"
+			}
 		}
 
-		column_references {
-			refencing_column = "seller_id"
-			referenced_column = "seller_id"
+		foreign_keys {
+			referenced_table {
+				project_id = google_bigquery_dataset.stn_ecommerce.project
+				dataset_id = google_bigquery_dataset.stn_ecommerce.dataset_id
+				table_id = google_bigquery_table.stn_ecommerce_products.table_id
+			}
+
+			column_references {
+				refencing_column = "product_id"
+				referenced_column = "product_id"
+			}
+		}
+		
+		foreign_keys {
+			referenced_table {
+				project_id = google_bigquery_dataset.stn_ecommerce.project
+				dataset_id = google_bigquery_dataset.stn_ecommerce.dataset_id
+				table_id = google_bigquery_table.stn_ecommerce_sellers.table_id
+			}
+
+			column_references {
+				refencing_column = "seller_id"
+				referenced_column = "seller_id"
+			}
 		}
 	}
 
@@ -272,20 +278,22 @@ resource "google_bigquery_table" "stn_ecommerce_order_payments" {
 		]
 		EOF
 
-	primary_key {
-		columns = ["order_id", "payment_sequential"]
-	}
-
-	foreign_keys {
-		referenced_table {
-			project_id = google_bigquery_dataset.stn_ecommerce.project
-			dataset_id = google_bigquery_dataset.stn_ecommerce.dataset_id
-			table_id = google_bigquery_table.stn_ecommerce_orders.table_id
+	table_constraints {
+		primary_key {
+			columns = ["order_id", "payment_sequential"]
 		}
 
-		column_references {
-			refencing_column = "order_id"
-			referenced_column = "order_id"
+		foreign_keys {
+			referenced_table {
+				project_id = google_bigquery_dataset.stn_ecommerce.project
+				dataset_id = google_bigquery_dataset.stn_ecommerce.dataset_id
+				table_id = google_bigquery_table.stn_ecommerce_orders.table_id
+			}
+
+			column_references {
+				refencing_column = "order_id"
+				referenced_column = "order_id"
+			}
 		}
 	}
 	
@@ -350,20 +358,22 @@ resource "google_bigquery_table" "stn_ecommerce_order_reviews" {
 		]
 		EOF
 
-	primary_key {
-		columns = ["review_id"]
-	}
-
-	foreign_keys {
-		referenced_table {
-			project_id = google_bigquery_dataset.stn_ecommerce.project
-			dataset_id = google_bigquery_dataset.stn_ecommerce.dataset_id
-			table_id = google_bigquery_table.stn_ecommerce_orders.table_id
+	table_constraints {
+		primary_key {
+			columns = ["review_id"]
 		}
 
-		column_references {
-			refencing_column = "order_id"
-			referenced_column = "order_id"
+		foreign_keys {
+			referenced_table {
+				project_id = google_bigquery_dataset.stn_ecommerce.project
+				dataset_id = google_bigquery_dataset.stn_ecommerce.dataset_id
+				table_id = google_bigquery_table.stn_ecommerce_orders.table_id
+			}
+
+			column_references {
+				refencing_column = "order_id"
+				referenced_column = "order_id"
+			}
 		}
 	}
 	
@@ -434,20 +444,22 @@ resource "google_bigquery_table" "stn_ecommerce_orders" {
 		]
 		EOF
 
-	primary_key {
-		columns = ["order_id"]
-	}
-
-	foreign_keys {
-		referenced_table {
-			project_id = google_bigquery_dataset.stn_ecommerce.project
-			dataset_id = google_bigquery_dataset.stn_ecommerce.dataset_id
-			table_id = google_bigquery_table.stn_ecommerce_customers.table_id
+	table_constraints {
+		primary_key {
+			columns = ["order_id"]
 		}
 
-		column_references {
-			refencing_column = "customer_id"
-			referenced_column = "customer_id"
+		foreign_keys {
+			referenced_table {
+				project_id = google_bigquery_dataset.stn_ecommerce.project
+				dataset_id = google_bigquery_dataset.stn_ecommerce.dataset_id
+				table_id = google_bigquery_table.stn_ecommerce_customers.table_id
+			}
+
+			column_references {
+				refencing_column = "customer_id"
+				referenced_column = "customer_id"
+			}
 		}
 	}
 	
@@ -524,8 +536,10 @@ resource "google_bigquery_table" "stn_ecommerce_products" {
 		]
 		EOF
 
-	primary_key {
-		columns = ["product_id"]
+	table_constraints {
+		primary_key {
+			columns = ["product_id"]
+		}
 	}
 	
 	labels = {
@@ -570,20 +584,22 @@ resource "google_bigquery_table" "stn_ecommerce_sellers" {
 		]
 		EOF
 
-	primary_key {
-		columns = ["seller_id"]
-	}
-
-	foreign_keys {
-		referenced_table {
-			project_id = google_bigquery_dataset.stn_ecommerce.project
-			dataset_id = google_bigquery_dataset.stn_ecommerce.dataset_id
-			table_id = google_bigquery_table.stn_ecommerce_geolocation.table_id
+	table_constraints {
+		primary_key {
+			columns = ["seller_id"]
 		}
 
-		column_references {
-			refencing_column = "seller_zip_code_prefix"
-			referenced_column = "geolocation_zip_code_prefix"
+		foreign_keys {
+			referenced_table {
+				project_id = google_bigquery_dataset.stn_ecommerce.project
+				dataset_id = google_bigquery_dataset.stn_ecommerce.dataset_id
+				table_id = google_bigquery_table.stn_ecommerce_geolocation.table_id
+			}
+
+			column_references {
+				refencing_column = "seller_zip_code_prefix"
+				referenced_column = "geolocation_zip_code_prefix"
+			}
 		}
 	}
 
