@@ -479,7 +479,7 @@ resource "google_bigquery_table" "stn_ecommerce_orders" {
 
 resource "google_bigquery_table" "stn_ecommerce_products" {
 	dataset_id = google_bigquery_dataset.stn_ecommerce.dataset_id
-	table_id = "olist_orders_dataset"
+	table_id = "olist_products_dataset"
 	description = "This dataset includes data about the products sold by Olist"
 	deletion_protection=false
 
