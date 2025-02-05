@@ -74,7 +74,7 @@ resource "google_bigquery_table" "stn_ecommerce_customers" {
 			columns = ["customer_id"]
 		}
 
-		foreign_keys {
+		foreign_keys { # TODO: Add constraint names
 			referenced_table {
 				project_id = google_bigquery_dataset.stn_ecommerce.project
 				dataset_id = google_bigquery_dataset.stn_ecommerce.dataset_id
