@@ -1,8 +1,8 @@
-import io
 import json
-import copy
 import argparse
+from datetime import datetime
 import apache_beam as beam
+from apache_beam import pvalue
 from google.cloud import bigquery
 from decimal import Decimal
 
@@ -13,51 +13,61 @@ from apache_beam.options.pipeline_options import PipelineOptions
 
 
 class RenameSchemaFn(beam.DoFn):
-    def process(self, elem, field_rename_dict):
-        dict_elem = elem._asdict()
+    def process(self, element, field_rename_dict):
+        dict_element = element._asdict()
 
         for old_name, new_name in field_rename_dict.items():
-            if old_name in dict_elem:
-                dict_elem[new_name] = dict_elem.pop(old_name)
+            if old_name in dict_element:
+                dict_element[new_name] = dict_element.pop(old_name)
 
-        yield dict_elem
+        yield dict_element
 
 class MapBigQuerySchemaFn(beam.DoFn):
-    def process(self, elem, bq_schema):
-        bq_data_type_map = {
-            'STRING': str,
-            'BYTES': str,
-            'INTEGER': int,
-            'FLOAT': float,
-            'NUMERIC': Decimal,
-            'BOOLEAN': bool
-        }
+    DTYPE_MAP = {
+        'STRING': str,
+        'BYTES': str,
+        'INTEGER': int,
+        'FLOAT': float,
+        'NUMERIC': Decimal,
+        'BOOLEAN': bool
+    }
 
-        mapped_elem = elem.copy()
+    def __init__(self, table_ref):
+        self.table_ref = table_ref
 
-        for field_def in bq_schema:
-            if field_def.name not in mapped_elem:
+    def _validate_element(self, element):
+        flag_valid_element = True
+
+        for field_name in element:
+            if field_name not in self.table_ref.dict_schema:
                 continue
-        
-            if field_def.field_type not in bq_data_type_map:
+
+            field_dtype = self.table_ref.dict_schema[field_name].field_type
+            if field_dtype not in self.DTYPE_MAP:
                 continue
 
-            orig_val = mapped_elem[field_def.name]
-            casting_func = bq_data_type_map[field_def.field_type]
+            if element[field_name] is None:
+                if self.table_ref.dict_schema[field_name].is_nullable is False:
+                    yield 'error', (f'[ERROR][VALIDATION] {datetime.now()} [CONSTRAINT ERROR] Field {field_name} must not be NULL - {element}')
+                    flag_valid_element = False
+                continue
+            
             try:
-                casted_val = casting_func(orig_val)
-                mapped_elem[field_def.name] = casted_val
-            except Exception as e:
-                print(e)
-                raise
+                old_value = element[field_name]
+                new_value = self.DTYPE_MAP[field_dtype](old_value)
+                element[field_name] = new_value
+            except Exception:
+                yield 'error', (f'[ERROR][VALIDATION] {datetime.now()} [TYPE ERROR] Failed to cast value {old_value} to {field_dtype} - {element}')
+                flag_valid_element = False
+            
+        if flag_valid_element is True:
+            yield 'main', element
 
-            if field_def.field_mode == 'REQUIRED' and orig_val
-                
+    def process(self, element):
+        val_result = self._validate_element(element.copy())
 
-
-
-
-
+        for output_tag, new_element in val_result:
+            yield pvalue.TaggedOutput(output_tag, new_element)
 
 def main(argv=None):
     parser = argparse.ArgumentParser()
@@ -67,11 +77,13 @@ def main(argv=None):
     parser.add_argument('--dst-dataset', dest='dst_dataset', type=str, default='stn_ecommerce')
     parser.add_argument('--dst-table', dest='dst_table', type=str, default='olist_order_reviews_dataset')
     parser.add_argument('--field-rename-dict', dest='field_rename_dict', type=json.loads, default='{"review_score": "reviewscore"}')
+    parser.add_argument('--map-bq-schema', dest='map_bq_schema', type=bool, default=True)
 
     known_args, pipeline_args = parser.parse_known_args(argv)
 
     client = bigquery.Client()
     dst_table_ref = client.get_table(f'{known_args.dst_project}.{known_args.dst_dataset}.{known_args.dst_table}')
+    dst_table_ref.dict_schema = {field_ref.name: field_ref for field_ref in dst_table_ref.schema}
 
     beam_options = PipelineOptions()
 
@@ -80,8 +92,17 @@ def main(argv=None):
 
         csv_pcoll = to_pcollection(parsed_csv)
 
-        if known_args.rename_fields_dict:
+        if known_args.field_rename_dict is not None:
             csv_pcoll = csv_pcoll | beam.ParDo(RenameSchemaFn(), known_args.field_rename_dict)
+
+        if known_args.map_bq_schema is True:
+            mapped_pcoll = csv_pcoll | beam.ParDo(MapBigQuerySchemaFn(dst_table_ref)).with_outputs()
+
+            mapped_pcoll.error | beam.Map(print)
+        #     error_pcoll = mapped_pcoll.error
+        #     csv_pcoll = mapped_pcoll.valid
+
+        # csv_pcoll | beam.Map(print)
 
         # csv_pcoll | beam.io.WriteToBigQuery(
         #     pa,
