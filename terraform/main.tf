@@ -1,5 +1,5 @@
-resource "google_storage_bucket" "raw_ecommerce" {
-	name = "raw_ecommerce"
+resource "google_storage_bucket" "ecommerce" {
+	name = "ecommerce"
 	location = "US"
 	force_destroy = true
 	public_access_prevention = "enforced"
