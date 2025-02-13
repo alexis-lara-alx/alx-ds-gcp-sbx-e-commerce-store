@@ -1,5 +1,5 @@
-resource "google_storage_bucket" "alx-ds-ecommerce" {
-	name = "ecommerce"
+resource "google_storage_bucket" "ecommerce" {
+	name = "alx-ds-ecommerce"
 	location = "US"
 	force_destroy = true
 	public_access_prevention = "enforced"
