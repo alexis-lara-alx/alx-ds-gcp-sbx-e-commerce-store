@@ -1,4 +1,4 @@
-resource "google_storage_bucket" "ecommerce" {
+resource "google_storage_bucket" "alx-ds-ecommerce" {
 	name = "ecommerce"
 	location = "US"
 	force_destroy = true
