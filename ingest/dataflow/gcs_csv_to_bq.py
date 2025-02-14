@@ -2,11 +2,10 @@
 python3 gcs_csv_to_bq.py \
   --job_name test-$USER \
   --project alx-ds-sandbox \
-  --region us-east1 \
+  --region us-west1 \
   --runner DataflowRunner \
   --staging_location gs://alx-ds-ecommerce/stn/stg/ \
   --temp_location gs://alx-ds-ecommerce/stn/tmp/ \
-  --save_main_session true \
   -S gs://alx-ds-ecommerce/raw/data/olist_order_reviews_dataset_test.csv \
   -P alx-ds-sandbox \
   -D stn_ecommerce \
@@ -26,8 +25,8 @@ from typing import List
 
 from apache_beam.dataframe.io import read_csv
 from apache_beam.dataframe.convert import to_pcollection
-
-from apache_beam.options.pipeline_options import PipelineOptions
+from google.cloud.bigquery.table import Table
+from apache_beam.options.pipeline_options import PipelineOptions, GoogleCloudOptions, SetupOptions
 
 
 class RenameSchemaFn(beam.DoFn):
@@ -76,11 +75,14 @@ class MapBigQuerySchemaFn(beam.DoFn):
         flag_valid_element = True
         dtype_map_kwargs = {}
 
-        for field_name in element:
+        for field_name, field_value in element.items():
             if field_name not in self.dict_schema:
+                if field_value is not None:
+                    yield 'log', (f"[WARNING][VALIDATION] {datetime.now()} [EXTRA_FIELDS] Dropping extra column '{field_name}' value {field_value} - {element}")
+                element.pop(field_name)
                 continue
 
-            if element[field_name] is None:
+            if field_value is None:
                 if self.dict_schema[field_name].is_nullable is False:
                     yield 'log', (f"[ERROR][VALIDATION] {datetime.now()} [CONSTRAINT_ERROR] Field '{field_name}' must not be NULL - {element}")
                     flag_valid_element = False
@@ -98,11 +100,10 @@ class MapBigQuerySchemaFn(beam.DoFn):
                 dtype_map_kwargs.setdefault('yearfirst', True)
             
             try:
-                old_value = element[field_name]
-                new_value = self.DTYPE_MAP[field_dtype](old_value, **dtype_map_kwargs)
+                new_value = self.DTYPE_MAP[field_dtype](field_value, **dtype_map_kwargs)
                 element[field_name] = new_value
             except Exception:
-                yield 'log', (f"[ERROR][VALIDATION] {datetime.now()} [TYPE_ERROR] Failed to cast '{field_name}' value {repr(old_value)} to {field_dtype} - {element}")
+                yield 'log', (f"[ERROR][VALIDATION] {datetime.now()} [TYPE_ERROR] Failed to cast '{field_name}' value {repr(field_value)} to {field_dtype} - {element}")
                 flag_valid_element = False
             
         if flag_valid_element is True:
@@ -114,7 +115,21 @@ class MapBigQuerySchemaFn(beam.DoFn):
         for output_tag, new_element in val_result:
             yield pvalue.TaggedOutput(output_tag, new_element)
 
-def main(argv: List[str] = None) -> None:
+class BigQueryTable(Table):
+    def __init__(self, project, dataset, table):
+        client = bigquery.Client()
+        self.__dict__ = client.get_table(f'{project}.{dataset}.{table}').__dict__
+        self.__create_dict_schema()
+        self.__create_beam_schema()
+
+    def __create_dict_schema(self):
+        self.dict_schema = {field_ref.name: field_ref for field_ref in self.schema}
+
+    def __create_beam_schema(self):
+        self.beam_schema = {'fields': [{'name': field_ref.name, 'type': field_ref.field_type, 'mode': field_ref.mode} for field_ref in self.schema]}
+
+
+def main(argv: List[str] = None, save_main_session: bool=True) -> None:
     parser = argparse.ArgumentParser()
 
     parser.add_argument('-S', '--src-file', dest='src_file', type=str, required=True, help='Cloud Storage loaction of the .csv file in format gs://path/to/file.csv')
@@ -125,31 +140,31 @@ def main(argv: List[str] = None) -> None:
     parser.add_argument('-f', '--field-rename', dest='field_rename', type=json.loads, default={}, help="""JSON format string to rename the .csv file columns. E.g '{"oldname1":"newname1","oldname2":"newname2"}'""")
     parser.add_argument('-d', '--dayfirst-fields', dest='dayfirst_fields', type=str, nargs='*', default=[], help='Date format fields to be interpreted with their first digits as the day, separated by spaces. E.g. field1 field2 field3')
     parser.add_argument('-y', '--yearfirst-fields', dest='yearfirst_fields', type=str, nargs='*', default=[], help='Date format fields to be interpreted with their first digits as the year, separated by spaces. E.g. field1 field2 field3')
-    parser.add_argument('-w', '--write-disposition', dest='write_disposition', type=str, choices=['WRITE_APPEND', 'WRITE_TRUNCATE', 'WRITE_EMPTY'], default='WRITE_APPEND', help='Write disposition to use for the output table')
+    parser.add_argument('-w', '--write-disposition', dest='write_disposition', type=str, choices=['WRITE_APPEND', 'WRITE_TRUNCATE', 'WRITE_EMPTY'], default='WRITE_APPEND', help='Write disposition to use for output table')
 
     known_args, pipeline_args = parser.parse_known_args(argv)
-
-    client = bigquery.Client()
-    dst_table_ref = client.get_table(f'{known_args.dst_project}.{known_args.dst_dataset}.{known_args.dst_table}')
-    dict_schema = {field_ref.name: field_ref for field_ref in dst_table_ref.schema}
-
-    default_job_id = f'{known_args.dst_project}_{known_args.dst_dataset}_{known_args.dst_table}_{datetime.now().strftime('%Y%m%d-%H%M%S%.f')}'
-
     pipeline_options = PipelineOptions(pipeline_args)
+    job_name = pipeline_options.view_as(GoogleCloudOptions).job_name 
+    assert job_name is not None, 'Paramenter --job-name must not be None'
 
+    pipeline_options.view_as(GoogleCloudOptions).job_name = f'{job_name}-{datetime.now().strftime('%Y%m%d%H%M%S')}'.lower()
+    pipeline_options.view_as(SetupOptions).save_main_session = save_main_session
+
+    dst_table_ref = BigQueryTable(project=known_args.dst_project, dataset=known_args.dst_dataset, table=known_args.dst_table)
+    
     with beam.Pipeline(options=pipeline_options) as p:
-        parsed_csv = p | 'Read input file' >> read_csv(known_args.src_file)
+        parsed_csv = p | 'ReadFile' >> read_csv(known_args.src_file)
 
-        raw_pcoll = to_pcollection(parsed_csv)
+        raw_pcoll = to_pcollection(parsed_csv, label="DataframeToPColl")
 
-        dict_pcoll = raw_pcoll | beam.ParDo(
+        dict_pcoll = raw_pcoll | 'RenameFields' >> beam.ParDo(
             RenameSchemaFn(),
             known_args.field_rename
         )
 
-        mapped_pcoll = dict_pcoll | beam.ParDo(
+        mapped_pcoll = dict_pcoll | 'MapDTypes' >> beam.ParDo(
             MapBigQuerySchemaFn(
-                dict_schema,
+                dst_table_ref.dict_schema,
                 known_args.dayfirst_fields,
                 known_args.yearfirst_fields
             )
@@ -158,14 +173,20 @@ def main(argv: List[str] = None) -> None:
         output_pcoll = mapped_pcoll.main
         log_pcoll = mapped_pcoll.log
 
-        output_pcoll | beam.io.WriteToBigQuery(
+        output_pcoll | 'WriteToBQ' >> beam.io.WriteToBigQuery(
             table=f'{known_args.dst_project}:{known_args.dst_dataset}.{known_args.dst_table}',
-            schema={'fields': [{'name': field_ref.name, 'type': field_ref.field_type, 'mode': field_ref.mode} for field_ref in dst_table_ref.schema]},
+            schema=dst_table_ref.beam_schema,
             write_disposition=known_args.write_disposition,
             create_disposition=beam.io.BigQueryDisposition.CREATE_NEVER,
         )
 
-        log_pcoll | beam.io.textio.WriteToText(f'{known_args.dst_log}{beam.io.gcp.gce_metadata_util.fetch_dataflow_job_id() or default_job_id}', file_name_suffix=".log")
+        log_pcoll | 'WriteLog' >> beam.io.textio.WriteToText(f'{pipeline_options.view_as(GoogleCloudOptions).job_name}', file_name_suffix=".log")
 
 if __name__ == '__main__':
   main()
+
+# TODO
+# Split into modules
+# Add metadata columns
+# Create template
+# Add soft delete to buckets
