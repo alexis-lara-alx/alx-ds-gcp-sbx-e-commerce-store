@@ -41,7 +41,7 @@ class RenameSchemaFn(beam.DoFn):
 
 class MapBigQuerySchemaFn(beam.DoFn):
     TIMESTAMP_FMT = '%Y-%m-%d %H:%M:%S.%f UTC'
-    DATETIME_FMT = '%Y-%m-%d %H:%M:%S'
+    DATETIME_FMT = '%Y-%m-%dT%H:%M:%S'
     DATE_FMT = '%Y-%m-%d'
     TIME_FMT = '%H:%M:%S'
 
@@ -75,7 +75,7 @@ class MapBigQuerySchemaFn(beam.DoFn):
         flag_valid_element = True
         dtype_map_kwargs = {}
 
-        for field_name, field_value in element.items():
+        for field_name, field_value in element.copy().items():
             if field_name not in self.dict_schema:
                 if field_value is not None:
                     yield 'log', (f"[WARNING][VALIDATION] {datetime.now()} [EXTRA_FIELDS] Dropping extra column '{field_name}' value {field_value} - {element}")
@@ -187,6 +187,5 @@ if __name__ == '__main__':
 
 # TODO
 # Split into modules
-# Add metadata columns
 # Create template
 # Add soft delete to buckets
