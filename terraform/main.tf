@@ -205,7 +205,7 @@ resource "google_bigquery_table" "stn_ecommerce_order_items" {
 			},
 			{
 				"name": "shipping_limit_date",
-				"type": "DATETIME",
+				"type": "TIMESTAMP",
 				"mode": "REQUIRED",
 				"description": "Shows the seller shipping limit date for handling the order over to the logistic partner"
 			},
@@ -414,15 +414,15 @@ resource "google_bigquery_table" "stn_ecommerce_order_reviews" {
 			,
 			{
 				"name": "review_creation_date",
-				"type": "DATETIME",
+				"type": "TIMESTAMP",
 				"mode": "REQUIRED",
 				"description": "Shows the date in which the satisfaction survey was sent to the customer"
 			},
 			{
-				"name": "review_answer_DATETIME",
-				"type": "DATETIME",
+				"name": "review_answer_timestamp",
+				"type": "TIMESTAMP",
 				"mode": "REQUIRED",
-				"description": "Shows satisfaction survey answer DATETIME"
+				"description": "Shows satisfaction survey answer timestamp"
 			},
 			{
 				"name": "_created_date",
@@ -490,33 +490,33 @@ resource "google_bigquery_table" "stn_ecommerce_orders" {
 				"description": "Reference to the order status (delivered, shipped, etc)"
 			},
 			{
-				"name": "order_purchase_DATETIME",
-				"type": "DATETIME",
+				"name": "order_purchase_timestamp",
+				"type": "TIMESTAMP",
 				"mode": "REQUIRED",
-				"description": "Shows the purchase DATETIME"
+				"description": "Shows the purchase timestamp"
 			},
 			{
 				"name": "order_approved_at",
-				"type": "DATETIME",
+				"type": "TIMESTAMP",
 				"mode": "NULLABLE",
-				"description": "Shows the payment approval DATETIME"
+				"description": "Shows the payment approval timestamp"
 			}
 			,
 			{
 				"name": "order_delivered_carrier_date",
-				"type": "DATETIME",
+				"type": "TIMESTAMP",
 				"mode": "NULLABLE",
-				"description": "Shows the order posting DATETIME. When it was handled to the logistic partner"
+				"description": "Shows the order posting timestamp. When it was handled to the logistic partner"
 			},
 			{
 				"name": "order_delivered_customer_date",
-				"type": "DATETIME",
+				"type": "TIMESTAMP",
 				"mode": "NULLABLE",
 				"description": "Shows the actual order delivery date to the customer"
 			},
 			{
 				"name": "order_estimated_delivery_date",
-				"type": "DATETIME",
+				"type": "TIMESTAMP",
 				"mode": "REQUIRED",
 				"description": "Shows the estimated delivery date that was informed to customer at the purchase moment"
 			},
