@@ -121,7 +121,7 @@ resource "google_bigquery_table" "stn_ecommerce_geolocation" {
 			},
 			{
 				"name": "geolocation_lat",
-				"type": "NUMERIC",
+				"type": "BIGNUMERIC",
 				"mode": "REQUIRED",
 				"description": "Latitude",
 				"precision": "17",
@@ -129,7 +129,7 @@ resource "google_bigquery_table" "stn_ecommerce_geolocation" {
 			},
 			{
 				"name": "geolocation_lng",
-				"type": "NUMERIC",
+				"type": "BIGNUMERIC",
 				"mode": "REQUIRED",
 				"description": "Longitude",
 				"precision": "17",
