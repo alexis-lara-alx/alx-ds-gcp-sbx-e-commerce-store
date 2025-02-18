@@ -71,7 +71,7 @@ resource "google_bigquery_table" "stn_ecommerce_customers" {
 				"type": "TIMESTAMP",
 				"mode": "NULLABLE",
 				"description": "Record creation date",
-				"defaultValueExpression": "CURRENT_TIMESTAMP()"
+				"defaultValueExpression": "CURRENT_TIMESTAMP"
 			}
 		]
 		EOF
@@ -152,7 +152,7 @@ resource "google_bigquery_table" "stn_ecommerce_geolocation" {
 				"type": "TIMESTAMP",
 				"mode": "NULLABLE",
 				"description": "Record creation date",
-				"defaultValueExpression": "CURRENT_TIMESTAMP()"
+				"defaultValueExpression": "CURRENT_TIMESTAMP"
 			}
 		]
 		EOF
@@ -230,7 +230,7 @@ resource "google_bigquery_table" "stn_ecommerce_order_items" {
 				"type": "TIMESTAMP",
 				"mode": "NULLABLE",
 				"description": "Record creation date",
-				"defaultValueExpression": "CURRENT_TIMESTAMP()"
+				"defaultValueExpression": "CURRENT_TIMESTAMP"
 			}
 		]
 		EOF
@@ -339,7 +339,7 @@ resource "google_bigquery_table" "stn_ecommerce_order_payments" {
 				"type": "TIMESTAMP",
 				"mode": "NULLABLE",
 				"description": "Record creation date",
-				"defaultValueExpression": "CURRENT_TIMESTAMP()"
+				"defaultValueExpression": "CURRENT_TIMESTAMP"
 			}
 		]
 		EOF
@@ -429,7 +429,7 @@ resource "google_bigquery_table" "stn_ecommerce_order_reviews" {
 				"type": "TIMESTAMP",
 				"mode": "NULLABLE",
 				"description": "Record creation date",
-				"defaultValueExpression": "CURRENT_TIMESTAMP()"
+				"defaultValueExpression": "CURRENT_TIMESTAMP"
 			}
 		]
 		EOF
@@ -525,7 +525,7 @@ resource "google_bigquery_table" "stn_ecommerce_orders" {
 				"type": "TIMESTAMP",
 				"mode": "NULLABLE",
 				"description": "Record creation date",
-				"defaultValueExpression": "CURRENT_TIMESTAMP()"
+				"defaultValueExpression": "CURRENT_TIMESTAMP"
 			}
 		]
 		EOF
@@ -627,7 +627,7 @@ resource "google_bigquery_table" "stn_ecommerce_products" {
 				"type": "TIMESTAMP",
 				"mode": "NULLABLE",
 				"description": "Record creation date",
-				"defaultValueExpression": "CURRENT_TIMESTAMP()"
+				"defaultValueExpression": "CURRENT_TIMESTAMP"
 			}
 		]
 		EOF
@@ -683,7 +683,7 @@ resource "google_bigquery_table" "stn_ecommerce_sellers" {
 				"type": "TIMESTAMP",
 				"mode": "NULLABLE",
 				"description": "Record creation date",
-				"defaultValueExpression": "CURRENT_TIMESTAMP()"
+				"defaultValueExpression": "CURRENT_TIMESTAMP"
 			}
 		]
 		EOF
