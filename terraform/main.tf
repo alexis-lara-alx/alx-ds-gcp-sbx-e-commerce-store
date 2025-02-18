@@ -69,7 +69,7 @@ resource "google_bigquery_table" "stn_ecommerce_customers" {
 			{
 				"name": "_created_date",
 				"type": "TIMESTAMP",
-				"mode": "REQUIRED",
+				"mode": "NULLABLE",
 				"description": "Record creation date",
 				"defaultValueExpression": "CURRENT_TIMESTAMP()"
 			}
@@ -150,7 +150,7 @@ resource "google_bigquery_table" "stn_ecommerce_geolocation" {
 			{
 				"name": "_created_date",
 				"type": "TIMESTAMP",
-				"mode": "REQUIRED",
+				"mode": "NULLABLE",
 				"description": "Record creation date",
 				"defaultValueExpression": "CURRENT_TIMESTAMP()"
 			}
@@ -228,7 +228,7 @@ resource "google_bigquery_table" "stn_ecommerce_order_items" {
 			{
 				"name": "_created_date",
 				"type": "TIMESTAMP",
-				"mode": "REQUIRED",
+				"mode": "NULLABLE",
 				"description": "Record creation date",
 				"defaultValueExpression": "CURRENT_TIMESTAMP()"
 			}
@@ -337,7 +337,7 @@ resource "google_bigquery_table" "stn_ecommerce_order_payments" {
 			{
 				"name": "_created_date",
 				"type": "TIMESTAMP",
-				"mode": "REQUIRED",
+				"mode": "NULLABLE",
 				"description": "Record creation date",
 				"defaultValueExpression": "CURRENT_TIMESTAMP()"
 			}
@@ -427,7 +427,7 @@ resource "google_bigquery_table" "stn_ecommerce_order_reviews" {
 			{
 				"name": "_created_date",
 				"type": "TIMESTAMP",
-				"mode": "REQUIRED",
+				"mode": "NULLABLE",
 				"description": "Record creation date",
 				"defaultValueExpression": "CURRENT_TIMESTAMP()"
 			}
@@ -523,7 +523,7 @@ resource "google_bigquery_table" "stn_ecommerce_orders" {
 			{
 				"name": "_created_date",
 				"type": "TIMESTAMP",
-				"mode": "REQUIRED",
+				"mode": "NULLABLE",
 				"description": "Record creation date",
 				"defaultValueExpression": "CURRENT_TIMESTAMP()"
 			}
@@ -625,7 +625,7 @@ resource "google_bigquery_table" "stn_ecommerce_products" {
 			{
 				"name": "_created_date",
 				"type": "TIMESTAMP",
-				"mode": "REQUIRED",
+				"mode": "NULLABLE",
 				"description": "Record creation date",
 				"defaultValueExpression": "CURRENT_TIMESTAMP()"
 			}
@@ -681,7 +681,7 @@ resource "google_bigquery_table" "stn_ecommerce_sellers" {
 			{
 				"name": "_created_date",
 				"type": "TIMESTAMP",
-				"mode": "REQUIRED",
+				"mode": "NULLABLE",
 				"description": "Record creation date",
 				"defaultValueExpression": "CURRENT_TIMESTAMP()"
 			}
