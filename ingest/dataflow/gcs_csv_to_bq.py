@@ -10,7 +10,9 @@ python3 gcs_csv_to_bq.py \
   -P alx-ds-sandbox \
   -D stn_ecommerce \
   -T olist_order_reviews_dataset \
-  -L gs://alx-ds-ecommerce/stn/log/
+  -L gs://alx-ds-ecommerce/stn/log/ \
+  -w WRITE_TRUNCATE \
+  -c _created_date
 """
 
 import json
@@ -45,10 +47,11 @@ class MapBigQuerySchemaFn(beam.DoFn):
     DATE_FMT = '%Y-%m-%d'
     TIME_FMT = '%H:%M:%S'
 
-    def __init__(self, dict_schema, dayfirst_fields, yerafirst_fields):
+    def __init__(self, dict_schema, dayfirst_fields, yerafirst_fields, created_column=None):
         self.dict_schema = dict_schema
         self.dayfirst_fields = dayfirst_fields
         self.yearfirst_fields = yerafirst_fields
+        self.created_column = created_column
 
         self.DTYPE_MAP = {
             'STRING': lambda field: self.__cast_from_data_type(field, str),
@@ -71,7 +74,7 @@ class MapBigQuerySchemaFn(beam.DoFn):
         new_field = parsed_ts.strftime(output_format)
         return new_field
 
-    def __validate_element(self, element):
+    def __map_element_schema(self, element):
         flag_valid_element = True
         dtype_map_kwargs = {}
 
@@ -106,11 +109,15 @@ class MapBigQuerySchemaFn(beam.DoFn):
                 yield 'log', (f"[ERROR][VALIDATION] {datetime.now()} [TYPE_ERROR] Failed to cast '{field_name}' value {repr(field_value)} to {field_dtype} - {element}")
                 flag_valid_element = False
             
+        if self.created_column is not None:
+            created_column_dtype = self.dict_schema[self.created_column].field_type
+            element[self.created_column] = self.DTYPE_MAP[created_column_dtype](datetime.now().isoformat())
+        
         if flag_valid_element is True:
             yield 'main', element
 
     def process(self, element):
-        val_result = self.__validate_element(element.copy())
+        val_result = self.__map_element_schema(element.copy())
 
         for output_tag, new_element in val_result:
             yield pvalue.TaggedOutput(output_tag, new_element)
@@ -141,6 +148,7 @@ def main(argv: List[str] = None, save_main_session: bool=True) -> None:
     parser.add_argument('-d', '--dayfirst-fields', dest='dayfirst_fields', type=str, nargs='*', default=[], help='Date format fields to be interpreted with their first digits as the day, separated by spaces. E.g. field1 field2 field3')
     parser.add_argument('-y', '--yearfirst-fields', dest='yearfirst_fields', type=str, nargs='*', default=[], help='Date format fields to be interpreted with their first digits as the year, separated by spaces. E.g. field1 field2 field3')
     parser.add_argument('-w', '--write-disposition', dest='write_disposition', type=str, choices=['WRITE_APPEND', 'WRITE_TRUNCATE', 'WRITE_EMPTY'], default='WRITE_APPEND', help='Write disposition to use for output table')
+    parser.add_argument('-c', '--created-column', dest='created_column', type=str, help='Created date metadata column name to populate with timestamp of load')
 
     known_args, pipeline_args = parser.parse_known_args(argv)
     pipeline_options = PipelineOptions(pipeline_args)
@@ -151,6 +159,12 @@ def main(argv: List[str] = None, save_main_session: bool=True) -> None:
     pipeline_options.view_as(SetupOptions).save_main_session = save_main_session
 
     dst_table_ref = BigQueryTable(project=known_args.dst_project, dataset=known_args.dst_dataset, table=known_args.dst_table)
+
+    if known_args.created_column is not None:
+        assert known_args.created_column in dst_table_ref.dict_schema, f'Parameter --created-column {known_args.created_column} does not match a destination table column'
+
+        valid_created_dtypes = {'TIMESTAMP', 'DATETIME', 'TIME', 'DATE', 'STRING'}
+        assert dst_table_ref.dict_schema[known_args.created_column].field_type in valid_created_dtypes, f'Parameter --created-column column {known_args.created_column} must be of type {valid_created_dtypes}'
     
     with beam.Pipeline(options=pipeline_options) as p:
         parsed_csv = p | 'ReadFile' >> read_csv(known_args.src_file)
@@ -166,7 +180,8 @@ def main(argv: List[str] = None, save_main_session: bool=True) -> None:
             MapBigQuerySchemaFn(
                 dst_table_ref.dict_schema,
                 known_args.dayfirst_fields,
-                known_args.yearfirst_fields
+                known_args.yearfirst_fields,
+                created_column=known_args.created_column
             )
         ).with_outputs()
 
@@ -186,6 +201,7 @@ if __name__ == '__main__':
   main()
 
 # TODO
+# Read from sys io instear of hardcoded text
 # Split into modules
 # Create template
 # Add soft delete to buckets
