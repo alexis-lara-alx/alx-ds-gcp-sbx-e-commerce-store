@@ -65,6 +65,13 @@ resource "google_bigquery_table" "stn_ecommerce_customers" {
 				"type": "STRING",
 				"mode": "NULLABLE",
 				"description": "Customer state"
+			},
+			{
+				"name": "_created_date",
+				"type": "TIMESTAMP",
+				"mode": "REQUIRED",
+				"description": "Record creation date",
+				"defaultValueExpression": "CURRENT_TIMESTAMP()"
 			}
 		]
 		EOF
@@ -74,7 +81,9 @@ resource "google_bigquery_table" "stn_ecommerce_customers" {
 			columns = ["customer_id"]
 		}
 
-		foreign_keys { # TODO: Add constraint names
+		foreign_keys {
+			name = "FK__customers__geolocation"
+
 			referenced_table {
 				project_id = google_bigquery_dataset.stn_ecommerce.project
 				dataset_id = google_bigquery_dataset.stn_ecommerce.dataset_id
@@ -112,15 +121,19 @@ resource "google_bigquery_table" "stn_ecommerce_geolocation" {
 			},
 			{
 				"name": "geolocation_lat",
-				"type": "NUMERIC",
+				"type": "BIGNUMERIC",
 				"mode": "REQUIRED",
-				"description": "Latitude"
+				"description": "Latitude",
+				"precision": "17",
+				"scale": "15"
 			},
 			{
 				"name": "geolocation_lng",
-				"type": "NUMERIC",
+				"type": "BIGNUMERIC",
 				"mode": "REQUIRED",
-				"description": "Longitude"
+				"description": "Longitude",
+				"precision": "17",
+				"scale": "15"
 			},
 			{
 				"name": "geolocation_city",
@@ -133,6 +146,13 @@ resource "google_bigquery_table" "stn_ecommerce_geolocation" {
 				"type": "STRING",
 				"mode": "NULLABLE",
 				"description": "State"
+			},
+			{
+				"name": "_created_date",
+				"type": "TIMESTAMP",
+				"mode": "REQUIRED",
+				"description": "Record creation date",
+				"defaultValueExpression": "CURRENT_TIMESTAMP()"
 			}
 		]
 		EOF
@@ -185,7 +205,7 @@ resource "google_bigquery_table" "stn_ecommerce_order_items" {
 			},
 			{
 				"name": "shipping_limit_date",
-				"type": "TIMESTAMP",
+				"type": "DATETIME",
 				"mode": "REQUIRED",
 				"description": "Shows the seller shipping limit date for handling the order over to the logistic partner"
 			},
@@ -193,13 +213,24 @@ resource "google_bigquery_table" "stn_ecommerce_order_items" {
 				"name": "price",
 				"type": "NUMERIC",
 				"mode": "REQUIRED",
-				"description": "Item price"
+				"description": "Item price",
+				"precision": "9",
+				"scale": "2"
 			},
 			{
 				"name": "freight_value",
 				"type": "NUMERIC",
 				"mode": "REQUIRED",
-				"description": "Item freight value item (if an order has more than one item the freight value is splitted between items)"
+				"description": "Item freight value item (if an order has more than one item the freight value is splitted between items)",
+				"precision": "9",
+				"scale": "2"
+			},
+			{
+				"name": "_created_date",
+				"type": "TIMESTAMP",
+				"mode": "REQUIRED",
+				"description": "Record creation date",
+				"defaultValueExpression": "CURRENT_TIMESTAMP()"
 			}
 		]
 		EOF
@@ -210,6 +241,8 @@ resource "google_bigquery_table" "stn_ecommerce_order_items" {
 		}
 
 		foreign_keys {
+			name = "FK__order_items__orders"
+
 			referenced_table {
 				project_id = google_bigquery_dataset.stn_ecommerce.project
 				dataset_id = google_bigquery_dataset.stn_ecommerce.dataset_id
@@ -223,6 +256,8 @@ resource "google_bigquery_table" "stn_ecommerce_order_items" {
 		}
 
 		foreign_keys {
+			name = "FK__order_items__products"
+
 			referenced_table {
 				project_id = google_bigquery_dataset.stn_ecommerce.project
 				dataset_id = google_bigquery_dataset.stn_ecommerce.dataset_id
@@ -236,6 +271,8 @@ resource "google_bigquery_table" "stn_ecommerce_order_items" {
 		}
 		
 		foreign_keys {
+			name = "FK__order_items__sellers"
+
 			referenced_table {
 				project_id = google_bigquery_dataset.stn_ecommerce.project
 				dataset_id = google_bigquery_dataset.stn_ecommerce.dataset_id
@@ -293,7 +330,16 @@ resource "google_bigquery_table" "stn_ecommerce_order_payments" {
 				"name": "payment_value",
 				"type": "NUMERIC",
 				"mode": "REQUIRED",
-				"description": "Transaction value"
+				"description": "Transaction value",
+				"precision": "9",
+				"scale": "2"
+			},
+			{
+				"name": "_created_date",
+				"type": "TIMESTAMP",
+				"mode": "REQUIRED",
+				"description": "Record creation date",
+				"defaultValueExpression": "CURRENT_TIMESTAMP()"
 			}
 		]
 		EOF
@@ -304,6 +350,8 @@ resource "google_bigquery_table" "stn_ecommerce_order_payments" {
 		}
 
 		foreign_keys {
+			name = "FK__order_payment__orders"
+
 			referenced_table {
 				project_id = google_bigquery_dataset.stn_ecommerce.project
 				dataset_id = google_bigquery_dataset.stn_ecommerce.dataset_id
@@ -366,15 +414,22 @@ resource "google_bigquery_table" "stn_ecommerce_order_reviews" {
 			,
 			{
 				"name": "review_creation_date",
-				"type": "TIMESTAMP",
+				"type": "DATETIME",
 				"mode": "REQUIRED",
 				"description": "Shows the date in which the satisfaction survey was sent to the customer"
 			},
 			{
-				"name": "review_answer_timestamp",
+				"name": "review_answer_DATETIME",
+				"type": "DATETIME",
+				"mode": "REQUIRED",
+				"description": "Shows satisfaction survey answer DATETIME"
+			},
+			{
+				"name": "_created_date",
 				"type": "TIMESTAMP",
 				"mode": "REQUIRED",
-				"description": "Shows satisfaction survey answer timestamp"
+				"description": "Record creation date",
+				"defaultValueExpression": "CURRENT_TIMESTAMP()"
 			}
 		]
 		EOF
@@ -385,6 +440,8 @@ resource "google_bigquery_table" "stn_ecommerce_order_reviews" {
 		}
 
 		foreign_keys {
+			name = "FK__order_reviews__orders"
+
 			referenced_table {
 				project_id = google_bigquery_dataset.stn_ecommerce.project
 				dataset_id = google_bigquery_dataset.stn_ecommerce.dataset_id
@@ -433,35 +490,42 @@ resource "google_bigquery_table" "stn_ecommerce_orders" {
 				"description": "Reference to the order status (delivered, shipped, etc)"
 			},
 			{
-				"name": "order_purchase_timestamp",
-				"type": "TIMESTAMP",
+				"name": "order_purchase_DATETIME",
+				"type": "DATETIME",
 				"mode": "REQUIRED",
-				"description": "Shows the purchase timestamp"
+				"description": "Shows the purchase DATETIME"
 			},
 			{
 				"name": "order_approved_at",
-				"type": "TIMESTAMP",
+				"type": "DATETIME",
 				"mode": "NULLABLE",
-				"description": "Shows the payment approval timestamp"
+				"description": "Shows the payment approval DATETIME"
 			}
 			,
 			{
 				"name": "order_delivered_carrier_date",
-				"type": "TIMESTAMP",
+				"type": "DATETIME",
 				"mode": "NULLABLE",
-				"description": "Shows the order posting timestamp. When it was handled to the logistic partner"
+				"description": "Shows the order posting DATETIME. When it was handled to the logistic partner"
 			},
 			{
 				"name": "order_delivered_customer_date",
-				"type": "TIMESTAMP",
+				"type": "DATETIME",
 				"mode": "NULLABLE",
 				"description": "Shows the actual order delivery date to the customer"
 			},
 			{
 				"name": "order_estimated_delivery_date",
-				"type": "TIMESTAMP",
+				"type": "DATETIME",
 				"mode": "REQUIRED",
 				"description": "Shows the estimated delivery date that was informed to customer at the purchase moment"
+			},
+			{
+				"name": "_created_date",
+				"type": "TIMESTAMP",
+				"mode": "REQUIRED",
+				"description": "Record creation date",
+				"defaultValueExpression": "CURRENT_TIMESTAMP()"
 			}
 		]
 		EOF
@@ -472,6 +536,8 @@ resource "google_bigquery_table" "stn_ecommerce_orders" {
 		}
 
 		foreign_keys {
+			name = "FK__orders__customers"
+
 			referenced_table {
 				project_id = google_bigquery_dataset.stn_ecommerce.project
 				dataset_id = google_bigquery_dataset.stn_ecommerce.dataset_id
@@ -555,6 +621,13 @@ resource "google_bigquery_table" "stn_ecommerce_products" {
 				"type": "INTEGER",
 				"mode": "NULLABLE",
 				"description": "product width measured in centimeters"
+			},
+			{
+				"name": "_created_date",
+				"type": "TIMESTAMP",
+				"mode": "REQUIRED",
+				"description": "Record creation date",
+				"defaultValueExpression": "CURRENT_TIMESTAMP()"
 			}
 		]
 		EOF
@@ -604,6 +677,13 @@ resource "google_bigquery_table" "stn_ecommerce_sellers" {
 				"type": "STRING",
 				"mode": "REQUIRED",
 				"description": "Seller state"
+			},
+			{
+				"name": "_created_date",
+				"type": "TIMESTAMP",
+				"mode": "REQUIRED",
+				"description": "Record creation date",
+				"defaultValueExpression": "CURRENT_TIMESTAMP()"
 			}
 		]
 		EOF
@@ -614,6 +694,8 @@ resource "google_bigquery_table" "stn_ecommerce_sellers" {
 		}
 
 		foreign_keys {
+			name = "FK__sellers__geolocation"
+
 			referenced_table {
 				project_id = google_bigquery_dataset.stn_ecommerce.project
 				dataset_id = google_bigquery_dataset.stn_ecommerce.dataset_id
