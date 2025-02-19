@@ -11,7 +11,6 @@ python3 gcs_csv_to_bq.py \
   -D stn_ecommerce \
   -T olist_order_reviews_dataset \
   -L gs://alx-ds-ecommerce/stn/log/ \
-  -w WRITE_TRUNCATE \
   -c _created_date
 """
 
