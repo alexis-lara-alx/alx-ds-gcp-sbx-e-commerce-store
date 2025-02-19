@@ -4,7 +4,76 @@ resource "google_storage_bucket" "ecommerce" {
 	force_destroy = true
 	public_access_prevention = "enforced"
 
-	# TODO - Add lifecycle policies
+	lifecycle_rule {
+		condition {
+			age = 30
+		}
+		action {
+			type = "SetStorageClass"
+			storage_class = "NEARLINE"
+		}
+	}
+
+	lifecycle_rule {
+		condition {
+			age = 90
+		}
+		action {
+			type = "SetStorageClass"
+			storage_class = "COLDLINE"
+		}
+	}
+
+	lifecycle_rule {
+		condition {
+			age = 365
+		}
+		action {
+			type = "SetStorageClass"
+			storage_class = "ARCHIVE"
+		}
+	}
+
+	labels = {
+		project = "ecommerce-store"
+		env = "sandbox"
+		customer = "alx-ds"
+		lake_zone = "raw"
+	}
+}
+
+resource "google_storage_bucket" "dataflow" {
+	name = "alx-ds-dataflow"
+	location = "US"
+	force_destroy = true
+	public_access_prevention = "enforced"
+
+	labels = {
+		project = "ecommerce-store"
+		env = "sandbox"
+		customer = "alx-ds"
+		lake_zone = "trs"
+	}
+}
+
+resource "google_storage_bucket" "tmp" {
+	name = "alx-ds-tmp"
+	location = "US"
+	force_destroy = true
+	public_access_prevention = "enforced"
+
+	retention_policy {
+		retention_period = 86400
+	}
+
+	lifecycle_rule {
+		condition {
+			age = 1
+		}
+		action {
+			type = "Delete"
+		}
+	}
 
 	labels = {
 		project = "ecommerce-store"
